@@ -1,96 +1,88 @@
-import { BaseRecord, DataProvider, GetListParams, GetListResponse } from "@refinedev/core";
+import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
 
-// Simple in-memory mock dataset for "subjects"
-const SUBJECTS = [
-  {
-    id: 1,
-    code: "CS101",
-    name: "Introduction to Computer Science",
-    department: { name: "Computer Science" },
-    description: "Fundamentals of programming, algorithms, and problem solving.",
-  },
-  {
-    id: 2,
-    code: "MATH201",
-    name: "Calculus II",
-    department: { name: "Mathematics" },
-    description: "Integration techniques, series, and applications in science and engineering.",
-  },
-  {
-    id: 3,
-    code: "ENG150",
-    name: "Academic Writing",
-    department: { name: "English" },
-    description: "Principles of clear academic writing, argumentation, and research skills.",
-  },
-] as const satisfies ReadonlyArray<Record<string, unknown>>;
+import { CreateResponse, GetOneResponse, ListResponse } from "@/types";
+import { BACKEND_BASE_URL } from "@/constants";
 
-export const dataProvider: DataProvider = {
-  getList: async <TData extends BaseRecord>({ resource, pagination, filters, sorters }: GetListParams): Promise<GetListResponse<TData>> => {
-    if (resource !== "subjects") return { data: [] as TData[], total: 0 };
+const options: CreateDataProviderOptions = {
+  getList: {
+    getEndpoint: ({ resource }) => resource,
 
-    // Start with all subjects
-    let rows = [...(SUBJECTS as unknown as TData[])];
+    buildQueryParams: async ({ resource, pagination, filters }) => {
+      const params: Record<string, string | number> = {};
 
-    // Apply filters (supports: name contains, department eq)
-    if (filters && Array.isArray(filters)) {
-      for (const f of filters as any[]) {
-        const field = (f as any).field;
-        const operator = (f as any).operator;
-        const value = (f as any).value;
+      if (pagination?.mode !== "off") {
+        const page = pagination?.currentPage ?? 1;
+        const pageSize = pagination?.pageSize ?? 10;
 
-        if (field === "name" && (operator === "contains" || operator === "icontains")) {
-          rows = rows.filter((r: any) => String(r.name ?? "").toLowerCase().includes(String(value ?? "").toLowerCase()));
-        }
-        if (field === "department" && operator === "eq") {
-          rows = rows.filter((r: any) => {
-            const deptName = typeof r.department === "string" ? r.department : r.department?.name;
-            return String(deptName ?? "") === String(value ?? "");
-          });
-        }
+        params.page = page;
+        params.limit = pageSize;
       }
-    }
 
-    // Apply sorting (supports: id, name, code)
-    if (sorters && Array.isArray(sorters) && sorters.length > 0) {
-      const { field, order } = (sorters as any[])[0] ?? {};
-      if (field) {
-        rows.sort((a: any, b: any) => {
-          const av = a[field];
-          const bv = b[field];
-          if (av === bv) return 0;
-          const cmp = av > bv ? 1 : -1;
-          return order === "desc" ? -cmp : cmp;
-        });
-      }
-    }
+      filters?.forEach((filter) => {
+        const field = "field" in filter ? filter.field : "";
+        const value = String(filter.value);
 
-    const total = rows.length;
+        if (field === "role") {
+          params.role = value;
+        }
 
-    // Apply pagination
-    const current = (pagination as any)?.current ?? 1;
-    const pageSize = (pagination as any)?.pageSize ?? total;
-    const start = (current - 1) * pageSize;
-    const end = start + pageSize;
-    const paged = rows.slice(start, end);
+        if (resource === "departments") {
+          if (field === "name" || field === "code") params.search = value;
+        }
 
-    return {
-      data: paged as TData[],
-      total,
-    };
+        if (resource === "users") {
+          if (field === "search" || field === "name" || field === "email") {
+            params.search = value;
+          }
+        }
+
+        if (resource === "subjects") {
+          if (field === "department") params.department = value;
+          if (field === "name" || field === "code") params.search = value;
+        }
+
+        if (resource === "classes") {
+          if (field === "name") params.search = value;
+          if (field === "subject") params.subject = value;
+          if (field === "teacher") params.teacher = value;
+        }
+      });
+
+      return params;
+    },
+
+    mapResponse: async (response) => {
+      const payload: ListResponse = await response.json();
+      return payload.data ?? [];
+    },
+
+    getTotalCount: async (response) => {
+      const payload: ListResponse = await response.json();
+      return payload.pagination?.total ?? payload.data?.length ?? 0;
+    },
   },
-  getOne: async () => {
-    throw new Error("this function is not present in mock");
+
+  /*create: {
+    getEndpoint: ({ resource }) => resource,
+
+    buildBodyParams: async ({ variables }) => variables,
+
+    mapResponse: async (response) => {
+      const json: CreateResponse = await response.json();
+      return json.data ?? {};
+    },
   },
-  create: async () => {
-    throw new Error("this function is not present in mock");
-  },
-  update: async () => {
-    throw new Error("this function is not present in mock");
-  },
-  deleteOne: async () => {
-    throw new Error("this function is not present in mock");
-  },
-  getApiUrl: () => "",
+
+  getOne: {
+    getEndpoint: ({ resource, id }) => `${resource}/${id}`,
+
+    mapResponse: async (response) => {
+      const json: GetOneResponse = await response.json();
+      return json.data ?? {};
+    },
+  },*/
 };
 
+const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);
+
+export { dataProvider };
