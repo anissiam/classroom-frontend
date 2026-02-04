@@ -90,7 +90,6 @@ const ClassesCreate = () => {
 
     const subjects = subjectsQuery.data?.data || [];
     const subjectsLoading = subjectsQuery.isLoading;
-
     return (
         <CreateView className="class-view">
             <Breadcrumb />
