@@ -1,21 +1,30 @@
-import React, {useMemo, useState} from 'react'
-import {ListView} from "@/components/refine-ui/views/list-view.tsx";
-import {Breadcrumb} from "@/components/refine-ui/layout/breadcrumb.tsx";
-import {Search} from 'lucide-react';
-import {Input} from '@/components/ui/input';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
-import {DEPARTMENT_OPTIONS} from "@/constants";
-import { CreateButton } from '@/components/refine-ui/buttons/create';
-import {DataTable} from "@/components/refine-ui/data-table/data-table.tsx";
-import {Subject} from "@/types";
-import {ColumnDef} from "@tanstack/react-table";
-import {Badge} from "@/components/ui/badge.tsx";
-import {useTable} from "@refinedev/react-table";
-import {ShowButton} from "@/components/refine-ui/buttons/show.tsx";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useTable } from "@refinedev/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 
-const SubjectsList = () => {
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { ListView } from "@/components/refine-ui/views/list-view";
+import { CreateButton } from "@/components/refine-ui/buttons/create";
+import { Breadcrumb } from "@/components/refine-ui/layout/breadcrumb";
+import { DataTable } from "@/components/refine-ui/data-table/data-table";
+import { ShowButton } from "@/components/refine-ui/buttons/show";
+
+import { Subject } from "@/types";
+import { DEPARTMENT_OPTIONS } from "@/constants";
+
+const SubjectListPage = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+
     const subjectColumns = useMemo<ColumnDef<Subject>[]>(
         () => [
             {
@@ -115,15 +124,18 @@ const SubjectsList = () => {
             },
         },
     });
+
     return (
         <ListView>
-            <Breadcrumb/>
+            <Breadcrumb />
             <h1 className="page-title">Subjects</h1>
+
             <div className="intro-row">
                 <p>Quick access to essential metrics and management tools.</p>
+
                 <div className="actions-row">
                     <div className="search-field">
-                        <Search className="search-icon"/>
+                        <Search className="search-icon" />
                         <Input
                             type="text"
                             placeholder="Search by name..."
@@ -132,6 +144,7 @@ const SubjectsList = () => {
                             onChange={(event) => setSearchQuery(event.target.value)}
                         />
                     </div>
+
                     <div className="flex gap-2 w-full sm:w-auto">
                         <Select
                             value={selectedDepartment}
@@ -140,7 +153,6 @@ const SubjectsList = () => {
                             <SelectTrigger className="">
                                 <SelectValue placeholder="Filter by department" />
                             </SelectTrigger>
-
 
                             <SelectContent>
                                 <SelectItem value="all">All Departments</SelectItem>
@@ -156,9 +168,10 @@ const SubjectsList = () => {
                     </div>
                 </div>
             </div>
-            <DataTable table={subjectTable}/>
-        </ListView>
-    )
-}
 
-export default SubjectsList
+            <DataTable table={subjectTable} />
+        </ListView>
+    );
+};
+
+export default SubjectListPage;

@@ -17,6 +17,11 @@ export const ROLE_OPTIONS = [
     label: "Teacher",
     icon: School,
   },
+  {
+    value: USER_ROLES.ADMIN,
+    label: "Admin",
+    icon: School,
+  },
 ];
 
 export const DEPARTMENTS = [

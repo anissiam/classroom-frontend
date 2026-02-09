@@ -12,6 +12,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -22,8 +29,11 @@ import {
   useRefineOptions,
   useRegister,
 } from "@refinedev/core";
+import { ROLE_OPTIONS } from "@/constants";
 
 export const SignUpForm = () => {
+  const [name, setName] = useState("");
+  const [role, setRole] = useState(ROLE_OPTIONS[0]?.value ?? "student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -34,10 +44,19 @@ export const SignUpForm = () => {
 
   const { title } = useRefineOptions();
 
-  const { mutate: register } = useRegister();
+  const { mutate: register, isPending } = useRegister();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!name.trim()) {
+      open?.({
+        type: "error",
+        message: "Full name is required",
+        description: "Please enter your full name.",
+      });
+      return;
+    }
 
     if (password !== confirmPassword) {
       open?.({
@@ -51,6 +70,8 @@ export const SignUpForm = () => {
     }
 
     register({
+      name: name.trim(),
+      role,
       email,
       password,
     });
@@ -114,6 +135,18 @@ export const SignUpForm = () => {
         <CardContent className={cn("px-0")}>
           <form onSubmit={handleSignUp}>
             <div className={cn("flex", "flex-col", "gap-2")}>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                name="name"
+                placeholder="John Doe"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className={cn("flex", "flex-col", "gap-2", "mt-6")}>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -123,6 +156,31 @@ export const SignUpForm = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+            </div>
+
+            <div className={cn("flex", "flex-col", "gap-2", "mt-6")}>
+              <Label htmlFor="role">Role</Label>
+              <Select
+                value={role}
+                onValueChange={(value) => setRole(value)}
+                required
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLE_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      <div className="flex items-center gap-2">
+                        {option.icon && (
+                          <option.icon className="w-4 h-4 text-muted-foreground" />
+                        )}
+                        <span>{option.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div
@@ -152,6 +210,7 @@ export const SignUpForm = () => {
             <Button
               type="submit"
               size="lg"
+              disabled={isPending}
               className={cn(
                 "w-full",
                 "mt-6",
@@ -160,7 +219,7 @@ export const SignUpForm = () => {
                 "text-white"
               )}
             >
-              Sign up
+              {isPending ? "Signing up..." : "Sign up"}
             </Button>
 
             <div className={cn("flex", "items-center", "gap-4", "mt-6")}>
