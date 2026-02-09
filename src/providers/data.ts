@@ -64,7 +64,7 @@ const options: CreateDataProviderOptions = {
     },
   },
 
-  /*create: {
+  create: {
     getEndpoint: ({ resource }) => resource,
 
     buildBodyParams: async ({ variables }) => variables,
@@ -82,7 +82,7 @@ const options: CreateDataProviderOptions = {
       const json: GetOneResponse = await response.json();
       return json.data ?? {};
     },
-  },*/
+  }
 };
 
 const { dataProvider } = createDataProvider(BACKEND_BASE_URL, options);

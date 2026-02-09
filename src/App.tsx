@@ -12,7 +12,7 @@ import { Toaster } from "./components/refine-ui/notification/toaster";
 import { useNotificationProvider } from "./components/refine-ui/notification/use-notification-provider";
 import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
 import { dataProvider } from "./providers/data";
-import {BookOpen, GraduationCap, Home} from "lucide-react";
+import {BookOpen, Building2, GraduationCap, Home} from "lucide-react";
 import { Layout } from "./components/refine-ui/layout/layout";
 import Dashboard from "./pages/dashboard";
 import SubjectsList from "./pages/subjects/list";
@@ -20,6 +20,7 @@ import SubjectsCreate from "./pages/subjects/create";
 
 import ClassesList from "./pages/classes/list";
 import ClassesCreate from "./pages/classes/create";
+import ClassesShow from "./pages/classes/show";
 function App() {
   return (
     <BrowserRouter>
@@ -37,19 +38,38 @@ function App() {
               }}
               resources={[
                 {
-                  name: 'dashbord',
+                  name: 'dashboard',
                   list: '/',
                   meta: { label: "Home", icon: <Home /> }
                 },
                 {
-                  name: 'subjects',
-                  list: '/subjects',
-                  meta: { label: "Subjects", icon: <BookOpen /> }
+                  name: "subjects",
+                  list: "/subjects",
+                  create: "/subjects/create",
+                  show: "/subjects/show/:id",
+                  meta: {
+                    label: "Subjects",
+                    icon: <BookOpen />,
+                  },
                 },
                 {
-                  name: 'classes',
-                  list: '/classes',
-                  meta: { label: "Classes", icon: <GraduationCap /> }
+                  name: "classes",
+                  list: "/classes",
+                  create: "/classes/create",
+                  show: "/classes/show/:id",
+                  meta: {
+                    label: "Classes",
+                    icon: <GraduationCap />,
+                  },
+                /*{
+                  name: "departments",
+                  list: "/departments",
+                  show: "/departments/show/:id",
+                  create: "/departments/create",
+                  meta: {
+                    label: "Departments",
+                    icon: <Building2 />,
+                  },*/
                 }
               ]}
             >
@@ -65,6 +85,7 @@ function App() {
                   <Route path="/classes">
                     <Route index element={<ClassesList />}></Route>
                     <Route path="create" element={<ClassesCreate />}></Route>
+                    <Route path="show/:id" element={<ClassesShow />}></Route>
                   </Route>
                 </Route>
               </Routes>

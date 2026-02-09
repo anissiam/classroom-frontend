@@ -89,6 +89,7 @@ const ClassesCreate = () => {
     const teachersLoading = teachersQuery.isLoading;
 
     const subjects = subjectsQuery.data?.data || [];
+    console.log(subjects)
     const subjectsLoading = subjectsQuery.isLoading;
     return (
         <CreateView className="class-view">
